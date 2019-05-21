@@ -1,0 +1,8 @@
+{
+	"compilerOptions": {
+		"baseUrl": "test",
+		"paths": {
+			"@foobar": ["foo/bar"]
+		}
+	}
+}
