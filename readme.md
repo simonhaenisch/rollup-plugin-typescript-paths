@@ -1,5 +1,7 @@
 # rollup-plugin-typescript-paths
 
+[![Actions Status](https://wdp9fww0r9.execute-api.us-west-2.amazonaws.com/production/badge/simonhaenisch/rollup-plugin-typescript-paths)](https://wdp9fww0r9.execute-api.us-west-2.amazonaws.com/production/results/simonhaenisch/rollup-plugin-typescript-paths)
+
 Rollup Plugin to automatically resolve path aliases set in the `compilerOptions` section of `tsconfig.json`.
 
 For example, if you have 
