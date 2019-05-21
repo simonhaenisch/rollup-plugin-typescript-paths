@@ -8,6 +8,7 @@ For example, if you have
 // tsconfig.json
 {
   "compilerOptions": {
+    // ...
     "baseUrl": ".",
     "paths": {
       "@utils": ["src/helpers/utils"]
