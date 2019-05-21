@@ -1,0 +1,36 @@
+{
+  "name": "rollup-plugin-typescript-paths",
+  "version": "1.0.0",
+  "description": "Rollup Plugin to automatically resolve path aliases set in the compilerOptions section of tsconfig.json.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Simon Haenisch (https://github.com/simonhaenisch)",
+  "repository": "simonhaenisch/rollup-plugin-typescript-paths",
+  "keywords": [
+    "rollup-plugin",
+    "typescript"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simonhaenisch/rollup-plugin-typescript-paths/issues"
+  },
+  "homepage": "https://github.com/simonhaenisch/rollup-plugin-typescript-paths#readme",
+  "devDependencies": {
+    "typescript": "^3.4.5"
+  },
+  "peerDependencies": {
+    "typescript": ">=3.x"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "all",
+    "useTabs": true,
+    "bracketSpacing": true
+  }
+}
