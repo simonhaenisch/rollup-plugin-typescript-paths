@@ -6,7 +6,7 @@ export const resolveTypescriptPaths = (options: Options = {}) => {
 	return {
 		name: 'resolve-typescript-paths',
 		resolveId: (importee: string, importer: string) => {
-			if (!compilerOptions.paths) {
+			if (importee.startsWith('\0') || !compilerOptions.paths) {
 				return null;
 			}
 
