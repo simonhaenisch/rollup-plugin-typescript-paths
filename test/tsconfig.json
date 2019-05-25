@@ -2,7 +2,9 @@
 	"compilerOptions": {
 		"baseUrl": "test",
 		"paths": {
-			"@foobar": ["foo/bar"]
+			"@foobar": ["foo/bar"],
+			"@bar/*": ["bar/*"],
+			"@js": ["js"]
 		}
 	}
 }
