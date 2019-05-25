@@ -6,7 +6,15 @@ export const resolveTypescriptPaths = (options: Options = {}) => {
 	return {
 		name: 'resolve-typescript-paths',
 		resolveId: (importee: string, importer: string) => {
-			if (!compilerOptions.paths || !compilerOptions.paths[importee]) {
+			if (!compilerOptions.paths) {
+				return null;
+			}
+
+			const hasMatchingPath = Object.keys(compilerOptions.paths).some(path =>
+				new RegExp(path.replace('*', '\\w*')).test(importee),
+			);
+
+			if (!hasMatchingPath) {
 				return null;
 			}
 
