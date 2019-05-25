@@ -1,6 +1,6 @@
 # rollup-plugin-typescript-paths
 
-[![Actions Status](https://wdp9fww0r9.execute-api.us-west-2.amazonaws.com/production/badge/simonhaenisch/rollup-plugin-typescript-paths)](https://wdp9fww0r9.execute-api.us-west-2.amazonaws.com/production/results/simonhaenisch/rollup-plugin-typescript-paths)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fsimonhaenisch%2Frollup-plugin-typescript-paths%2Fbadge&style=flat)](https://actions-badge.atrox.dev/simonhaenisch/rollup-plugin-typescript-paths/goto)
 
 Rollup Plugin to automatically resolve path aliases set in the `compilerOptions` section of `tsconfig.json`.
 
@@ -24,6 +24,12 @@ import { something } from '@utils';
 ```
 
 Then this plugin will make sure that rollup knows how to resolve `@utils`.
+
+## Features
+
+- No config required. 😎
+- Wildcards are supported. 💪
+- Uses `nodeModuleNameResolver` from the Typescript API. 🤓
 
 ## Installation
 
