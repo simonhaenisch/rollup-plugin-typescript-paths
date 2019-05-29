@@ -12,5 +12,6 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"esModuleInterop": true
-	}
+	},
+	"files": ["index.ts"]
 }

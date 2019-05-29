@@ -6,7 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node test"
+    "test": "npm run build && node test",
+    "preversion": "npm test",
+    "prepare": "npm run build"
   },
   "author": "Simon Haenisch (https://github.com/simonhaenisch)",
   "repository": "simonhaenisch/rollup-plugin-typescript-paths",
