@@ -1,7 +1,11 @@
+import { join } from 'path';
 import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
 
-export const resolveTypescriptPaths = (options: Options = {}) => {
-	const compilerOptions = getCompilerOptions(options.tsConfigPath);
+export const resolveTypescriptPaths = ({
+	tsConfigPath = findConfigFile('./', sys.fileExists),
+	absolute = true,
+}: Options = {}) => {
+	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
 
 	return {
 		name: 'resolve-typescript-paths',
@@ -30,31 +34,45 @@ export const resolveTypescriptPaths = (options: Options = {}) => {
 				return null;
 			}
 
-			return resolvedFileName;
+			const jsFileName = join(outDir, resolvedFileName.replace(/\.tsx?$/i, '.js'));
+
+			return absolute ? sys.resolvePath(jsFileName) : jsFileName;
 		},
 	};
 };
 
-const getCompilerOptions = (configPath = findConfigFile('./', sys.fileExists)): CompilerOptions => {
+const getTsConfig = (configPath?: string): TsConfig => {
+	const defaults: TsConfig = { compilerOptions: {}, outDir: '.' };
+
 	if (!configPath) {
-		return {};
+		return defaults;
 	}
 
 	const configJson = sys.readFile(configPath);
 
 	if (!configJson) {
-		return {};
+		return defaults;
 	}
 
-	const config: { compilerOptions?: CompilerOptions } = JSON.parse(configJson);
+	const config: Partial<TsConfig> = JSON.parse(configJson);
 
-	if (!config || !config.compilerOptions) {
-		return {};
-	}
-
-	return config.compilerOptions;
+	return { ...defaults, ...config };
 };
 
 export interface Options {
+	/**
+	 * Custom path to your `tsconfig.json`. Use this if the plugin can't seem to
+	 * find the correct one by itself.
+	 */
 	tsConfigPath?: string;
+
+	/**
+	 * Whether to resolve to absolute paths or not; defaults to `true`.
+	 */
+	absolute?: boolean;
+}
+
+interface TsConfig {
+	compilerOptions: CompilerOptions;
+	outDir: string;
 }
