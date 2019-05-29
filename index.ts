@@ -4,6 +4,7 @@ import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'ty
 export const resolveTypescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
+	transform,
 }: Options = {}) => {
 	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
 
@@ -36,7 +37,13 @@ export const resolveTypescriptPaths = ({
 
 			const jsFileName = join(outDir, resolvedFileName.replace(/\.tsx?$/i, '.js'));
 
-			return absolute ? sys.resolvePath(jsFileName) : jsFileName;
+			let resolved = absolute ? sys.resolvePath(jsFileName) : jsFileName;
+
+			if (transform) {
+				resolved = transform(resolved);
+			}
+
+			return resolved;
 		},
 	};
 };
@@ -70,6 +77,12 @@ export interface Options {
 	 * Whether to resolve to absolute paths or not; defaults to `true`.
 	 */
 	absolute?: boolean;
+
+	/**
+	 * If the plugin successfully resolves a path, this function allows you to
+	 * hook into the process and transform that path before it is returned.
+	 */
+	transform?(path: string): string;
 }
 
 interface TsConfig {
