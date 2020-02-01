@@ -40,12 +40,12 @@ npm install --save-dev rollup-plugin-typescript-paths
 ## Usage
 
 ```js
-import { resolveTypescriptPaths } from 'rollup-plugin-typescript-paths';
+import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 
 export default {
   // ...
   plugins: [
-    resolveTypescriptPaths()
+    typescriptPaths()
   ]
 }
 ```

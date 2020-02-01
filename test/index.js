@@ -2,13 +2,13 @@
 
 const { strictEqual } = require('assert');
 const { resolve, join } = require('path');
-const { resolveTypescriptPaths } = require('../dist');
+const { typescriptPaths } = require('../dist');
 
 const transform = path => path.replace(/\.js$/i, '.cjs.js');
 
-const plugin = resolveTypescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json') });
-const pluginNonAbs = resolveTypescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), absolute: false });
-const pluginTransform = resolveTypescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), transform });
+const plugin = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json') });
+const pluginNonAbs = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), absolute: false });
+const pluginTransform = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), transform });
 
 try {
 	strictEqual(plugin.resolveId('@asdf', ''), null);
