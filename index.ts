@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
 
-export const resolveTypescriptPaths = ({
+export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
 	transform,
