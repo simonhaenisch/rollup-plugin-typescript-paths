@@ -2,7 +2,7 @@
 
 const { strictEqual } = require('assert');
 const { resolve, join } = require('path');
-const { typescriptPaths } = require('../dist');
+const typescriptPaths = require('../dist').default;
 
 const transform = path => path.replace(/\.js$/i, '.cjs.js');
 

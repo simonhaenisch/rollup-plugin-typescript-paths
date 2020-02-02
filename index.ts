@@ -89,3 +89,10 @@ interface TsConfig {
 	compilerOptions: CompilerOptions;
 	outDir: string;
 }
+
+/**
+ * For backwards compatibility.
+ */
+export const resolveTypescriptPaths = typescriptPaths;
+
+export default typescriptPaths;
