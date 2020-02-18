@@ -22,6 +22,7 @@
   "homepage": "https://github.com/simonhaenisch/rollup-plugin-typescript-paths#readme",
   "devDependencies": {
     "@types/node": "12.0.3",
+    "rollup": "^1.31.1",
     "typescript": "^3.4.5"
   },
   "peerDependencies": {

@@ -1,17 +1,18 @@
 import { join } from 'path';
 import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
+import { Plugin } from 'rollup';
 
 export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
 	transform,
-}: Options = {}) => {
+}: Options = {}): Plugin => {
 	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
 
 	return {
 		name: 'resolve-typescript-paths',
-		resolveId: (importee: string, importer: string) => {
-			if (importee.startsWith('\0') || !compilerOptions.paths) {
+		resolveId: (importee: string, importer?: string) => {
+			if (typeof importer === 'undefined' || importee.startsWith('\0') || !compilerOptions.paths) {
 				return null;
 			}
 
