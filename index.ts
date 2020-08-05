@@ -1,13 +1,13 @@
-import { join } from 'path';
-import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
+import { dirname, normalize, relative } from 'path';
 import { Plugin } from 'rollup';
+import { CompilerOptions, findConfigFile, nodeModuleNameResolver, parseJsonConfigFileContent, readConfigFile, sys } from 'typescript';
 
 export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
 	transform,
 }: Options = {}): Plugin => {
-	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
+	const compilerOptions = getTsCompilerOptions(tsConfigPath);
 
 	return {
 		name: 'resolve-typescript-paths',
@@ -36,9 +36,9 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const jsFileName = join(outDir, resolvedFileName.replace(/\.tsx?$/i, '.js'));
+			const jsFileName = normalize(resolvedFileName.replace(/\.tsx?$/i, '.js'));
 
-			let resolved = absolute ? sys.resolvePath(jsFileName) : jsFileName;
+			let resolved = absolute ? jsFileName : relative(compilerOptions.outDir!, jsFileName);
 
 			if (transform) {
 				resolved = transform(resolved);
@@ -49,22 +49,26 @@ export const typescriptPaths = ({
 	};
 };
 
-const getTsConfig = (configPath?: string): TsConfig => {
-	const defaults: TsConfig = { compilerOptions: {}, outDir: '.' };
+const getTsCompilerOptions = (configPath?: string): CompilerOptions => {
+	const defaults: CompilerOptions = { outDir: '.' };
 
 	if (!configPath) {
 		return defaults;
 	}
 
-	const configJson = sys.readFile(configPath);
+	const configFile = readConfigFile(configPath, sys.readFile);
 
-	if (!configJson) {
+	if (!configFile.config) {
 		return defaults;
 	}
 
-	const config: Partial<TsConfig> = JSON.parse(configJson);
+	const { options } = parseJsonConfigFileContent(
+		configFile.config,
+		sys,
+		dirname(configPath)
+	);
 
-	return { ...defaults, ...config };
+	return { ...defaults, ...options };
 };
 
 export interface Options {
@@ -84,11 +88,6 @@ export interface Options {
 	 * hook into the process and transform that path before it is returned.
 	 */
 	transform?(path: string): string;
-}
-
-interface TsConfig {
-	compilerOptions: CompilerOptions;
-	outDir: string;
 }
 
 /**

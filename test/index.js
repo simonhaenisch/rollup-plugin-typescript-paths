@@ -9,6 +9,7 @@ const transform = path => path.replace(/\.js$/i, '.cjs.js');
 const plugin = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json') });
 const pluginNonAbs = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), absolute: false });
 const pluginTransform = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), transform });
+const pluginExtended = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.extended.json') });
 
 try {
 	strictEqual(plugin.resolveId('@asdf', ''), null);
@@ -20,6 +21,8 @@ try {
 	strictEqual(pluginNonAbs.resolveId('@foobar', ''), join('test', 'foo', 'bar.js'));
 
 	strictEqual(pluginTransform.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.cjs.js'));
+
+	strictEqual(pluginExtended.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.js'));
 	console.log('PASSED');
 } catch (error) {
 	throw error;
