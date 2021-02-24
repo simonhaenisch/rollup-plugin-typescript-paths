@@ -2,7 +2,9 @@
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fsimonhaenisch%2Frollup-plugin-typescript-paths%2Fbadge&style=flat)](https://actions-badge.atrox.dev/simonhaenisch/rollup-plugin-typescript-paths/goto)
 
-Rollup Plugin to automatically resolve path aliases set in the `compilerOptions` section of `tsconfig.json`. It assumes that your Typescript code has already been transpiled before being rolled up (if that's not the case, you should probably use [rollup-plugin-typescript](https://github.com/rollup/rollup-plugin-typescript)).
+Rollup Plugin to automatically resolve path aliases set in the `compilerOptions` section of `tsconfig.json`.
+
+Don't use it if you're already using [rollup-plugin-typescript](https://github.com/rollup/rollup-plugin-typescript). This plugin is only for use cases where your TypeScript code has already been transpiled before `rollup` runs.
 
 For example, if you have 
 
