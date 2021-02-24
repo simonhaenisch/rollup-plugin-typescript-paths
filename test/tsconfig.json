@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"baseUrl": "test",
+		"baseUrl": "",
 		"paths": {
 			"@foobar": ["foo/bar"],
 			"@bar/*": ["bar/*"],
