@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { Plugin } from 'rollup';
-import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
+import { CompilerOptions, findConfigFile, nodeModuleNameResolver, parseConfigFileTextToJson, sys } from 'typescript';
 
 export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
@@ -62,7 +62,7 @@ const getTsConfig = (configPath?: string): TsConfig => {
 		return defaults;
 	}
 
-	const config: Partial<TsConfig> = JSON.parse(configJson);
+	const { config } = parseConfigFileTextToJson(configPath, configJson);
 
 	return { ...defaults, ...config };
 };
