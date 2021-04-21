@@ -1,6 +1,6 @@
 import { join } from 'path';
-import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
 import { Plugin } from 'rollup';
+import { CompilerOptions, findConfigFile, nodeModuleNameResolver, sys } from 'typescript';
 
 export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
@@ -16,7 +16,7 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const hasMatchingPath = Object.keys(compilerOptions.paths).some(path =>
+			const hasMatchingPath = Object.keys(compilerOptions.paths).some((path) =>
 				new RegExp(path.replace('*', '\\w*')).test(importee),
 			);
 

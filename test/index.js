@@ -4,7 +4,7 @@ const { strictEqual } = require('assert');
 const { resolve, join } = require('path');
 const typescriptPaths = require('../dist').default;
 
-const transform = path => path.replace(/\.js$/i, '.cjs.js');
+const transform = (path) => path.replace(/\.js$/i, '.cjs.js');
 
 const plugin = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json') });
 const pluginNonAbs = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), absolute: false });
