@@ -6,7 +6,7 @@ export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
 	transform,
-	preserveExtensions = false
+	preserveExtensions = false,
 }: Options = {}): Plugin => {
 	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
 
@@ -37,7 +37,10 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const jsFileName = join(outDir, preserveExtensions ? resolvedFileName : resolvedFileName.replace(/\.tsx?$/i, '.js'));
+			const jsFileName = join(
+				outDir,
+				preserveExtensions ? resolvedFileName : resolvedFileName.replace(/\.tsx?$/i, '.js'),
+			);
 
 			let resolved = absolute ? sys.resolvePath(jsFileName) : jsFileName;
 
