@@ -6,6 +6,7 @@ export const typescriptPaths = ({
 	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
 	transform,
+	preserveExtensions = false
 }: Options = {}): Plugin => {
 	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
 
@@ -36,7 +37,7 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const jsFileName = join(outDir, resolvedFileName.replace(/\.tsx?$/i, '.js'));
+			const jsFileName = join(outDir, preserveExtensions ? resolvedFileName : resolvedFileName.replace(/\.tsx?$/i, '.js'));
 
 			let resolved = absolute ? sys.resolvePath(jsFileName) : jsFileName;
 
@@ -84,6 +85,11 @@ export interface Options {
 	 * hook into the process and transform that path before it is returned.
 	 */
 	transform?(path: string): string;
+
+	/**
+	 * Whether to preserve `.ts` and `.tsx` file extensions instead of having them changed to `.js`; defaults to `false`.
+	 */
+	preserveExtensions?: boolean;
 }
 
 interface TsConfig {

@@ -4,6 +4,7 @@
 		"baseUrl": "test",
 		"paths": {
 			"@foobar": ["foo/bar"],
+			"@foobar-react": ["foo/barReact"],
 			"@bar/*": ["bar/*"],
 			"@js": ["js"]
 		}
