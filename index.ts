@@ -87,8 +87,7 @@ export interface Options {
 	transform?(path: string): string;
 
 	/**
-	 * Whether to automatically change `.ts` and `.tsx` file extensions
-	 * to `.js`; defaults to `false`.
+	 * Whether to preserve `.ts` and `.tsx` file extensions instead of having them changed to `.js`; defaults to `false`.
 	 */
 	preserveExtensions?: boolean;
 }
