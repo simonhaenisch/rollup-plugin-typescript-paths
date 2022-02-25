@@ -4,6 +4,9 @@
   "description": "Rollup Plugin to automatically resolve path aliases set in the compilerOptions section of tsconfig.json.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "npm run prepare && node test",
     "preversion": "npm test",
