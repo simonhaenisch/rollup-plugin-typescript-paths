@@ -18,7 +18,7 @@ export const typescriptPaths = ({
 			}
 
 			const hasMatchingPath = Object.keys(compilerOptions.paths).some((path) =>
-				new RegExp(path.replace('*', '\\w*')).test(importee),
+				new RegExp('^' + path.replace('*', '.+') + '$').test(importee),
 			);
 
 			if (!hasMatchingPath) {

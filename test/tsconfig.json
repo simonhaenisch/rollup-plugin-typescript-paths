@@ -6,6 +6,7 @@
 			"@foobar": ["foo/bar"],
 			"@foobar-react": ["foo/bar-react"],
 			"@bar/*": ["bar/*"],
+			"bar/*": ["bar/*"],
 			"@js": ["js"]
 		}
 	}

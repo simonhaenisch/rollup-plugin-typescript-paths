@@ -34,6 +34,15 @@ try {
 	// works with a directory with index file
 	strictEqual(plugin.resolveId('@js', ''), join(__dirname, 'js', 'index.js'));
 
+	// works without the `@` prefix
+	strictEqual(plugin.resolveId('bar/foo', ''), join(__dirname, 'bar', 'foo.js'));
+
+	// works with a different importer
+	strictEqual(plugin.resolveId('bar/foo', join(__dirname, 'foo', 'bar.ts')), join(__dirname, 'bar', 'foo.js'));
+
+	// doesn't accidentally resolve relative paths that also have an alias
+	strictEqual(plugin.resolveId('../bar/foo', join(__dirname, 'foo', 'bar.ts')), null);
+
 	// returns relative paths with option `absolute: false`
 	strictEqual(pluginNonAbs.resolveId('@foobar', ''), join('test', 'foo', 'bar.js'));
 
