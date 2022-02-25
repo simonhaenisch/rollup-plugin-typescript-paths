@@ -18,17 +18,29 @@ const pluginPreserveExtensions = typescriptPaths({
 });
 
 try {
+	// skips if a matching path alias isn't found
 	strictEqual(plugin.resolveId('@asdf', ''), null);
+
+	// skips if importee is a virtual module
 	strictEqual(plugin.resolveId('\0@foobar', ''), null);
+
+	// works with non-wildcard paths
 	strictEqual(plugin.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.js'));
 	strictEqual(plugin.resolveId('@foobar-react', ''), join(__dirname, 'foo', 'bar-react.js'));
+
+	// works with wildcard paths
 	strictEqual(plugin.resolveId('@bar/foo', ''), join(__dirname, 'bar', 'foo.js'));
+
+	// works with a directory with index file
 	strictEqual(plugin.resolveId('@js', ''), join(__dirname, 'js', 'index.js'));
 
+	// returns relative paths with option `absolute: false`
 	strictEqual(pluginNonAbs.resolveId('@foobar', ''), join('test', 'foo', 'bar.js'));
 
+	// applies function from `transform` option
 	strictEqual(pluginTransform.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.cjs.js'));
 
+	// resolves including the file extension with option `preserveExtensions: true`
 	strictEqual(pluginPreserveExtensions.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.ts'));
 	strictEqual(pluginPreserveExtensions.resolveId('@foobar-react', ''), join(__dirname, 'foo', 'bar-react.tsx'));
 
