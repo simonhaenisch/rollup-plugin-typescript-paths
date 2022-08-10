@@ -1,7 +1,7 @@
 {
   "name": "rollup-plugin-typescript-paths",
   "version": "1.3.1",
-  "description": "Rollup Plugin to automatically resolve path aliases set in the compilerOptions section of tsconfig.json.",
+  "description": "Rollup plugin to automatically resolve TypeScript path aliases.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -24,11 +24,11 @@
   },
   "homepage": "https://github.com/simonhaenisch/rollup-plugin-typescript-paths#readme",
   "devDependencies": {
-    "@types/node": "15.0.2",
-    "prettier": "2.3.0",
-    "prettier-plugin-organize-imports": "2.0.0",
-    "rollup": "2.47.0",
-    "typescript": "4.2.4"
+    "@types/node": "18.6.5",
+    "prettier": "2.7.1",
+    "prettier-plugin-organize-imports": "3.0.3",
+    "rollup": "2.77.2",
+    "typescript": "4.7.4"
   },
   "peerDependencies": {
     "typescript": ">=3.4"
