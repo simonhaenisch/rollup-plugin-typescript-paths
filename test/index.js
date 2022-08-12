@@ -27,26 +27,26 @@ try {
 	// skips if importee is a virtual module
 	strictEqual(plugin.resolveId('\0@foobar', ''), null);
 
-	// works with non-wildcard paths
+	// resolves with non-wildcard paths
 	strictEqual(plugin.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.js'));
 	strictEqual(plugin.resolveId('@foobar-react', ''), join(__dirname, 'foo', 'bar-react.js'));
 
-	// works with wildcard paths
+	// resolves with wildcard paths
 	strictEqual(plugin.resolveId('@bar/foo', ''), join(__dirname, 'bar', 'foo.js'));
 
-	// works with a directory with index file
+	// resolves from a directory with index file
 	strictEqual(plugin.resolveId('@js', ''), join(__dirname, 'js', 'index.js'));
 
-	// works without the `@` prefix
+	// resolves without an `@` prefix
 	strictEqual(plugin.resolveId('bar/foo', ''), join(__dirname, 'bar', 'foo.js'));
 
-	// works with a different importer
+	// resolves with a different importer
 	strictEqual(plugin.resolveId('bar/foo', join(__dirname, 'foo', 'bar.ts')), join(__dirname, 'bar', 'foo.js'));
 
 	// doesn't accidentally resolve relative paths that also have an alias
 	strictEqual(plugin.resolveId('../bar/foo', join(__dirname, 'foo', 'bar.ts')), null);
 
-	// returns relative paths with option `absolute: false`
+	// resolves as a relative path with option `absolute: false`
 	strictEqual(pluginNonAbs.resolveId('@foobar', ''), join('test', 'foo', 'bar.js'));
 
 	// applies function from `transform` option
