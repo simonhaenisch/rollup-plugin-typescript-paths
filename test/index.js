@@ -18,6 +18,9 @@ const pluginPreserveExtensions = typescriptPaths({
 });
 
 try {
+	// skips if module doesn't exist
+	strictEqual(plugin.resolveId('foo/baz', ''), null);
+
 	// skips if a matching path alias isn't found
 	strictEqual(plugin.resolveId('@asdf', ''), null);
 
