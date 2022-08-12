@@ -10,6 +10,8 @@ const plugin = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json
 
 const pluginNonAbs = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), absolute: false });
 
+const pluginNonRelative = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), nonRelative: true });
+
 const pluginTransform = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), transform });
 
 const pluginPreserveExtensions = typescriptPaths({
@@ -45,6 +47,12 @@ try {
 
 	// doesn't accidentally resolve relative paths that also have an alias
 	strictEqual(plugin.resolveId('../bar/foo', join(__dirname, 'foo', 'bar.ts')), null);
+
+	// skips non-relative paths unless enabled
+	strictEqual(plugin.resolveId('foo/bar', ''), null);
+
+	// resolves non-relative from baseUrl even if no path is matched
+	strictEqual(pluginNonRelative.resolveId('foo/bar', ''), join(__dirname, 'foo', 'bar.js'));
 
 	// resolves as a relative path with option `absolute: false`
 	strictEqual(pluginNonAbs.resolveId('@foobar', ''), join('test', 'foo', 'bar.js'));
