@@ -37,18 +37,14 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const jsFileName = join(
+			const targetFileName = join(
 				outDir,
 				preserveExtensions ? resolvedFileName : resolvedFileName.replace(/\.tsx?$/i, '.js'),
 			);
 
-			let resolved = absolute ? sys.resolvePath(jsFileName) : jsFileName;
+			const resolved = absolute ? sys.resolvePath(targetFileName) : targetFileName;
 
-			if (transform) {
-				resolved = transform(resolved);
-			}
-
-			return resolved;
+			return transform ? transform(resolved) : resolved;
 		},
 	};
 };
