@@ -3,26 +3,35 @@ import { Plugin } from 'rollup';
 import { CompilerOptions, findConfigFile, nodeModuleNameResolver, parseConfigFileTextToJson, sys } from 'typescript';
 
 export const typescriptPaths = ({
-	tsConfigPath = findConfigFile('./', sys.fileExists),
 	absolute = true,
-	transform,
+	nonRelative = false,
 	preserveExtensions = false,
+	tsConfigPath = findConfigFile('./', sys.fileExists),
+	transform,
 }: Options = {}): Plugin => {
 	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
 
 	return {
 		name: 'resolve-typescript-paths',
 		resolveId: (importee: string, importer?: string) => {
-			if (typeof importer === 'undefined' || importee.startsWith('\0') || !compilerOptions.paths) {
+			const enabled = Boolean(compilerOptions.paths || (compilerOptions.baseUrl && nonRelative));
+
+			if (typeof importer === 'undefined' || importee.startsWith('\0') || !enabled) {
 				return null;
 			}
 
-			const hasMatchingPath = Object.keys(compilerOptions.paths).some((path) =>
-				new RegExp('^' + path.replace('*', '.+') + '$').test(importee),
-			);
+			const hasMatchingPath =
+				!!compilerOptions.paths &&
+				Object.keys(compilerOptions.paths).some((path) =>
+					new RegExp('^' + path.replace('*', '.+') + '$').test(importee),
+				);
 
-			if (!hasMatchingPath) {
+			if (!hasMatchingPath && !nonRelative) {
 				return null;
+			}
+
+			if (importee.startsWith('.')) {
+				return null; // never resolve relative modules, only non-relative
 			}
 
 			const { resolvedModule } = nodeModuleNameResolver(importee, importer, compilerOptions, sys);
@@ -72,6 +81,15 @@ export interface Options {
 	 * Whether to resolve to absolute paths; defaults to `true`.
 	 */
 	absolute?: boolean;
+
+	/**
+	 * Whether to resolve non-relative paths based on tsconfig's `baseUrl`, even
+	 * if none of the `paths` are matched; defaults to `false`.
+	 *
+	 * @see https://www.typescriptlang.org/docs/handbook/module-resolution.html#relative-vs-non-relative-module-imports
+	 * @see https://www.typescriptlang.org/docs/handbook/module-resolution.html#base-url
+	 */
+	nonRelative?: boolean;
 
 	/**
 	 * Whether to preserve `.ts` and `.tsx` file extensions instead of having them
