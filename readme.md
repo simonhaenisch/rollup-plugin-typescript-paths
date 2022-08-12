@@ -52,10 +52,11 @@ export default {
 
 ## Options
 
-- **`tsConfigPath`:** Custom path to your `tsconfig.json`. Use this if the plugin can't seem to find the correct one by itself.
-- **`absolute`:** Whether to resolve to absolute paths or not; defaults to `true`.
-- **`transform`:** If the plugin successfully resolves a path, this function allows you to hook into the process and transform that path before it is returned.
+- **`absolute`:** Whether to resolve to absolute paths; defaults to `true`.
+- **`nonRelative`:** Whether to resolve [non-relative paths](https://www.typescriptlang.org/docs/handbook/module-resolution.html#relative-vs-non-relative-module-imports) based on tsconfig's `baseUrl`, even if none of the `paths` are matched; defaults to `false`.
 - **`preserveExtensions`:** Whether to preserve `.ts` and `.tsx` file extensions instead of having them changed to `.js`; defaults to `false`.
+- **`tsConfigPath`:** Custom path to your `tsconfig.json`. Use this if the plugin can't seem to find the correct one by itself.
+- **`transform`:** If the plugin successfully resolves a path, this function allows you to hook into the process and transform that path before it is returned.
 
 ## License
 
