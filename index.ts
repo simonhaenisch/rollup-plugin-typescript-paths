@@ -69,26 +69,27 @@ const getTsConfig = (configPath?: string): TsConfig => {
 
 export interface Options {
 	/**
+	 * Whether to resolve to absolute paths; defaults to `true`.
+	 */
+	absolute?: boolean;
+
+	/**
+	 * Whether to preserve `.ts` and `.tsx` file extensions instead of having them
+	 * changed to `.js`; defaults to `false`.
+	 */
+	preserveExtensions?: boolean;
+
+	/**
 	 * Custom path to your `tsconfig.json`. Use this if the plugin can't seem to
 	 * find the correct one by itself.
 	 */
 	tsConfigPath?: string;
 
 	/**
-	 * Whether to resolve to absolute paths or not; defaults to `true`.
-	 */
-	absolute?: boolean;
-
-	/**
 	 * If the plugin successfully resolves a path, this function allows you to
 	 * hook into the process and transform that path before it is returned.
 	 */
 	transform?(path: string): string;
-
-	/**
-	 * Whether to preserve `.ts` and `.tsx` file extensions instead of having them changed to `.js`; defaults to `false`.
-	 */
-	preserveExtensions?: boolean;
 }
 
 interface TsConfig {
