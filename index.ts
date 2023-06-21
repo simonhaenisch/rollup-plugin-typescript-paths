@@ -1,6 +1,12 @@
 import { join } from 'path';
 import { Plugin } from 'rollup';
-import { CompilerOptions, findConfigFile, nodeModuleNameResolver, parseConfigFileTextToJson, sys } from 'typescript';
+import {
+	CompilerOptions,
+	findConfigFile,
+	nodeModuleNameResolver,
+	parseConfigFileTextToJson,
+	sys,
+} from 'typescript';
 
 export const typescriptPaths = ({
 	absolute = true,
@@ -14,9 +20,15 @@ export const typescriptPaths = ({
 	return {
 		name: 'resolve-typescript-paths',
 		resolveId: (importee: string, importer?: string) => {
-			const enabled = Boolean(compilerOptions.paths || (compilerOptions.baseUrl && nonRelative));
+			const enabled = Boolean(
+				compilerOptions.paths || (compilerOptions.baseUrl && nonRelative),
+			);
 
-			if (typeof importer === 'undefined' || importee.startsWith('\0') || !enabled) {
+			if (
+				typeof importer === 'undefined' ||
+				importee.startsWith('\0') ||
+				!enabled
+			) {
 				return null;
 			}
 
@@ -34,7 +46,12 @@ export const typescriptPaths = ({
 				return null; // never resolve relative modules, only non-relative
 			}
 
-			const { resolvedModule } = nodeModuleNameResolver(importee, importer, compilerOptions, sys);
+			const { resolvedModule } = nodeModuleNameResolver(
+				importee,
+				importer,
+				compilerOptions,
+				sys,
+			);
 
 			if (!resolvedModule) {
 				return null;
@@ -48,10 +65,14 @@ export const typescriptPaths = ({
 
 			const targetFileName = join(
 				outDir,
-				preserveExtensions ? resolvedFileName : resolvedFileName.replace(/\.tsx?$/i, '.js'),
+				preserveExtensions
+					? resolvedFileName
+					: resolvedFileName.replace(/\.tsx?$/i, '.js'),
 			);
 
-			const resolved = absolute ? sys.resolvePath(targetFileName) : targetFileName;
+			const resolved = absolute
+				? sys.resolvePath(targetFileName)
+				: targetFileName;
 
 			return transform ? transform(resolved) : resolved;
 		},

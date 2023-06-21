@@ -6,13 +6,24 @@ const typescriptPaths = require('../dist').default;
 
 const transform = (path) => path.replace(/\.js$/i, '.cjs.js');
 
-const plugin = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json') });
+const plugin = typescriptPaths({
+	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+});
 
-const pluginNonAbs = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), absolute: false });
+const pluginNonAbs = typescriptPaths({
+	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	absolute: false,
+});
 
-const pluginNonRelative = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), nonRelative: true });
+const pluginNonRelative = typescriptPaths({
+	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	nonRelative: true,
+});
 
-const pluginTransform = typescriptPaths({ tsConfigPath: resolve(__dirname, 'tsconfig.json'), transform });
+const pluginTransform = typescriptPaths({
+	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	transform,
+});
 
 const pluginPreserveExtensions = typescriptPaths({
 	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
@@ -30,39 +41,72 @@ try {
 	strictEqual(plugin.resolveId('\0@foobar', ''), null);
 
 	// resolves with non-wildcard paths
-	strictEqual(plugin.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.js'));
-	strictEqual(plugin.resolveId('@foobar-react', ''), join(__dirname, 'foo', 'bar-react.js'));
+	strictEqual(
+		plugin.resolveId('@foobar', ''),
+		join(__dirname, 'foo', 'bar.js'),
+	);
+	strictEqual(
+		plugin.resolveId('@foobar-react', ''),
+		join(__dirname, 'foo', 'bar-react.js'),
+	);
 
 	// resolves with wildcard paths
-	strictEqual(plugin.resolveId('@bar/foo', ''), join(__dirname, 'bar', 'foo.js'));
+	strictEqual(
+		plugin.resolveId('@bar/foo', ''),
+		join(__dirname, 'bar', 'foo.js'),
+	);
 
 	// resolves from a directory with index file
 	strictEqual(plugin.resolveId('@js', ''), join(__dirname, 'js', 'index.js'));
 
 	// resolves without an `@` prefix
-	strictEqual(plugin.resolveId('bar/foo', ''), join(__dirname, 'bar', 'foo.js'));
+	strictEqual(
+		plugin.resolveId('bar/foo', ''),
+		join(__dirname, 'bar', 'foo.js'),
+	);
 
 	// resolves with a different importer
-	strictEqual(plugin.resolveId('bar/foo', join(__dirname, 'foo', 'bar.ts')), join(__dirname, 'bar', 'foo.js'));
+	strictEqual(
+		plugin.resolveId('bar/foo', join(__dirname, 'foo', 'bar.ts')),
+		join(__dirname, 'bar', 'foo.js'),
+	);
 
 	// doesn't accidentally resolve relative paths that also have an alias
-	strictEqual(plugin.resolveId('../bar/foo', join(__dirname, 'foo', 'bar.ts')), null);
+	strictEqual(
+		plugin.resolveId('../bar/foo', join(__dirname, 'foo', 'bar.ts')),
+		null,
+	);
 
 	// skips non-relative paths unless enabled
 	strictEqual(plugin.resolveId('foo/bar', ''), null);
 
 	// resolves non-relative from baseUrl even if no path is matched
-	strictEqual(pluginNonRelative.resolveId('foo/bar', ''), join(__dirname, 'foo', 'bar.js'));
+	strictEqual(
+		pluginNonRelative.resolveId('foo/bar', ''),
+		join(__dirname, 'foo', 'bar.js'),
+	);
 
 	// resolves as a relative path with option `absolute: false`
-	strictEqual(pluginNonAbs.resolveId('@foobar', ''), join('test', 'foo', 'bar.js'));
+	strictEqual(
+		pluginNonAbs.resolveId('@foobar', ''),
+		join('test', 'foo', 'bar.js'),
+	);
 
 	// applies function from `transform` option
-	strictEqual(pluginTransform.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.cjs.js'));
+	strictEqual(
+		pluginTransform.resolveId('@foobar', ''),
+		join(__dirname, 'foo', 'bar.cjs.js'),
+	);
 
 	// resolves including the file extension with option `preserveExtensions: true`
-	strictEqual(pluginPreserveExtensions.resolveId('@foobar', ''), join(__dirname, 'foo', 'bar.ts'));
-	strictEqual(pluginPreserveExtensions.resolveId('@foobar-react', ''), join(__dirname, 'foo', 'bar-react.tsx'));
+	strictEqual(
+		pluginPreserveExtensions.resolveId('@foobar', ''),
+		join(__dirname, 'foo', 'bar.ts'),
+	);
+	strictEqual(
+		pluginPreserveExtensions.resolveId('@foobar-react', ''),
+		join(__dirname, 'foo', 'bar-react.tsx'),
+	);
 
 	console.log('PASSED');
 } catch (error) {
