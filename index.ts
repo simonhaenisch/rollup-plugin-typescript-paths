@@ -1,200 +1,158 @@
 import path from 'path';
 import { Plugin } from 'rollup';
-import {
-  CompilerOptions,
-  findConfigFile,
-  nodeModuleNameResolver,
-  parseConfigFileTextToJson,
-  sys,
-} from 'typescript';
+import * as ts from 'typescript';
 
 export const typescriptPaths = ({
-  absolute = true,
-  nonRelative = false,
-  preserveExtensions = false,
-  tsConfigPath = findConfigFile('./', sys.fileExists),
-  transform,
+	absolute = true,
+	nonRelative = false,
+	preserveExtensions = false,
+	tsConfigPath = ts.findConfigFile('./', ts.sys.fileExists),
+	transform,
 }: Options = {}): Plugin => {
-  const { compilerOptions } = getTsConfig(tsConfigPath);
-  const outDir = compilerOptions.outDir ?? '.';
+	const compilerOptions = getTsConfig(tsConfigPath);
 
-  return {
-    name: 'resolve-typescript-paths',
-    resolveId: (importee: string, importer?: string) => {
-      const enabled = Boolean(
-        compilerOptions.paths || (compilerOptions.baseUrl && nonRelative)
-      );
+	return {
+		name: 'resolve-typescript-paths',
+		resolveId: (importee: string, importer?: string) => {
+			const enabled = Boolean(
+				compilerOptions.paths || (compilerOptions.baseUrl && nonRelative),
+			);
 
-      if (
-        typeof importer === 'undefined' ||
-        importee.startsWith('\0') ||
-        !enabled
-      ) {
-        return null;
-      }
+			if (
+				typeof importer === 'undefined' ||
+				importee.startsWith('\0') ||
+				!enabled
+			) {
+				return null;
+			}
 
-      const hasMatchingPath =
-        !!compilerOptions.paths &&
-        Object.keys(compilerOptions.paths).some((path) =>
-          new RegExp('^' + path.replace('*', '.+') + '$').test(importee)
-        );
+			const hasMatchingPath =
+				!!compilerOptions.paths &&
+				Object.keys(compilerOptions.paths).some((path) =>
+					new RegExp('^' + path.replace('*', '.+') + '$').test(importee),
+				);
 
-      if (!hasMatchingPath && !nonRelative) {
-        return null;
-      }
+			if (!hasMatchingPath && !nonRelative) {
+				return null;
+			}
 
-      if (importee.startsWith('.')) {
-        return null; // never resolve relative modules, only non-relative
-      }
+			if (importee.startsWith('.')) {
+				return null; // never resolve relative modules, only non-relative
+			}
 
-      const { resolvedModule } = nodeModuleNameResolver(
-        importee,
-        importer,
-        compilerOptions,
-        sys
-      );
+			const { resolvedModule } = ts.nodeModuleNameResolver(
+				importee,
+				importer,
+				compilerOptions,
+				ts.sys,
+			);
 
-      if (!resolvedModule) {
-        return null;
-      }
+			if (!resolvedModule) {
+				return null;
+			}
 
-      const { resolvedFileName } = resolvedModule;
+			const { resolvedFileName } = resolvedModule;
 
-      if (!resolvedFileName || resolvedFileName.endsWith('.d.ts')) {
-        return null;
-      }
+			if (!resolvedFileName || resolvedFileName.endsWith('.d.ts')) {
+				return null;
+			}
 
-      const targetFileName = path.join(
-        outDir,
-        preserveExtensions
-          ? resolvedFileName
-          : resolvedFileName.replace(/\.tsx?$/i, '.js')
-      );
+			// TODO: Do we need outDir as "resolvedFileName" is already correct absolute path
+			const targetFileName = path.join(
+				compilerOptions.outDir,
+				preserveExtensions
+					? resolvedFileName
+					: resolvedFileName.replace(/\.tsx?$/i, '.js'),
+			);
 
-      const resolved = absolute
-        ? sys.resolvePath(targetFileName)
-        : targetFileName;
+			const resolved = absolute
+				? ts.sys.resolvePath(targetFileName)
+				: targetFileName;
 
-      return transform ? transform(resolved) : resolved;
-    },
-  };
+			return transform ? transform(resolved) : resolved;
+		},
+	};
 };
 
 const getTsConfig = (configPath?: string): TsConfig => {
-  const defaults: TsConfig = { compilerOptions: { outDir: '.' } };
-  if (typeof configPath !== 'string') {
-    return defaults;
-  }
+	const defaults: TsConfig = { outDir: '.' };
+	if (typeof configPath !== 'string') {
+		return defaults;
+	}
 
-  // Read in tsconfig.json
-  const configJson = sys.readFile(configPath);
-  if (configJson == null) {
-    return defaults;
-  }
+	// Define a host object that implements ParseConfigFileHost.
+	// The host provides file system operations and error handling for parsing the configuration file.
+	const host: ts.ParseConfigFileHost = {
+		fileExists: ts.sys.fileExists,
+		readFile: ts.sys.readFile,
+		readDirectory: ts.sys.readDirectory,
+		useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
+		getCurrentDirectory: ts.sys.getCurrentDirectory,
+		onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
+			console.error(
+				'Unrecoverable error in config file:',
+				diagnostic.messageText,
+			);
+			process.exit(1);
+		},
+	};
 
-  const { config: rootConfig } = parseConfigFileTextToJson(
-    configPath,
-    configJson
-  );
-  const rootConfigWithDefaults = {
-    ...rootConfig,
-    ...defaults,
-    compilerOptions: {
-      ...defaults.compilerOptions,
-      ...(rootConfig.compilerOptions ?? {}),
-    },
-  };
-  const resolvedConfig = handleTsConfigExtends(
-    rootConfigWithDefaults,
-    configPath
-  );
+	// Read in tsconfig.json
+	const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
+		configPath,
+		{},
+		host,
+	);
 
-  return resolvedConfig;
-};
+	// Access the parsed tsconfig.json file options
+	let resolvedConfig = {};
+	if (parsedCommandLine != null) {
+		resolvedConfig = parsedCommandLine.options;
+	} else {
+		console.error('Failed to parse TypeScript configuration file:', configPath);
+		process.exit(1);
+	}
 
-const handleTsConfigExtends = (
-  config: TsConfig,
-  rootConfigPath: string
-): TsConfig => {
-  if (!('extends' in config) || typeof config.extends !== 'string') {
-    return config;
-  }
-
-  let extendedConfigPath;
-  try {
-    // Try to resolve as a module (npm)
-    extendedConfigPath = require.resolve(config.extends);
-  } catch (e) {
-    // Try to resolve as a file relative to the current config
-    extendedConfigPath = path.join(
-      path.dirname(rootConfigPath),
-      config.extends
-    );
-  }
-
-  // Read in extended tsconfig.json
-  const extendedConfig = getTsConfig(extendedConfigPath);
-
-  // Merge base config and current config.
-  // This does not handle array concatenation or nested objects,
-  // besides 'compilerOptions' paths as the other options are not relevant
-  config = {
-    ...extendedConfig,
-    ...config,
-    compilerOptions: {
-      ...extendedConfig.compilerOptions,
-      ...config.compilerOptions,
-      paths: {
-        ...(extendedConfig.compilerOptions.paths ?? {}),
-        ...(config.compilerOptions.paths ?? {}),
-      },
-    },
-  };
-
-  // Remove the "extends" field
-  delete config.extends;
-
-  return config;
+	return { ...defaults, ...resolvedConfig };
 };
 
 export interface Options {
-  /**
-   * Whether to resolve to absolute paths; defaults to `true`.
-   */
-  absolute?: boolean;
+	/**
+	 * Whether to resolve to absolute paths; defaults to `true`.
+	 */
+	absolute?: boolean;
 
-  /**
-   * Whether to resolve non-relative paths based on tsconfig's `baseUrl`, even
-   * if none of the `paths` are matched; defaults to `false`.
-   *
-   * @see https://www.typescriptlang.org/docs/handbook/module-resolution.html#relative-vs-non-relative-module-imports
-   * @see https://www.typescriptlang.org/docs/handbook/module-resolution.html#base-url
-   */
-  nonRelative?: boolean;
+	/**
+	 * Whether to resolve non-relative paths based on tsconfig's `baseUrl`, even
+	 * if none of the `paths` are matched; defaults to `false`.
+	 *
+	 * @see https://www.typescriptlang.org/docs/handbook/module-resolution.html#relative-vs-non-relative-module-imports
+	 * @see https://www.typescriptlang.org/docs/handbook/module-resolution.html#base-url
+	 */
+	nonRelative?: boolean;
 
-  /**
-   * Whether to preserve `.ts` and `.tsx` file extensions instead of having them
-   * changed to `.js`; defaults to `false`.
-   */
-  preserveExtensions?: boolean;
+	/**
+	 * Whether to preserve `.ts` and `.tsx` file extensions instead of having them
+	 * changed to `.js`; defaults to `false`.
+	 */
+	preserveExtensions?: boolean;
 
-  /**
-   * Custom path to your `tsconfig.json`. Use this if the plugin can't seem to
-   * find the correct one by itself.
-   */
-  tsConfigPath?: string;
+	/**
+	 * Custom path to your `tsconfig.json`. Use this if the plugin can't seem to
+	 * find the correct one by itself.
+	 */
+	tsConfigPath?: string;
 
-  /**
-   * If the plugin successfully resolves a path, this function allows you to
-   * hook into the process and transform that path before it is returned.
-   */
-  transform?(path: string): string;
+	/**
+	 * If the plugin successfully resolves a path, this function allows you to
+	 * hook into the process and transform that path before it is returned.
+	 */
+	transform?(path: string): string;
 }
 
-interface TsConfig {
-  compilerOptions: CompilerOptions;
-  extends?: string;
-}
+type TsConfig = {
+	outDir: string;
+} & Omit<ts.CompilerOptions, 'outDir'>;
 
 /**
  * For backwards compatibility.
