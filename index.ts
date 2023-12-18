@@ -35,7 +35,9 @@ export const typescriptPaths = ({
 			const hasMatchingPath =
 				!!compilerOptions.paths &&
 				Object.keys(compilerOptions.paths).some((path) =>
-					new RegExp('^' + path.replace('*', '.+') + '$').test(importee),
+					new RegExp('^' + escapeRegex(path.replace('*', '.+')) + '$').test(
+						importee,
+					),
 				);
 
 			if (!hasMatchingPath && !nonRelative) {
@@ -95,6 +97,14 @@ const getTsConfig = (configPath?: string): TsConfig => {
 	const { config } = parseConfigFileTextToJson(configPath, configJson);
 
 	return { ...defaults, ...config };
+};
+
+/**
+ * Escapes $ and ^ characters in the given string. This is necessary if you
+ * want to use `$/*` in your paths, for example.
+ */
+const escapeRegex = (str: string) => {
+	return str.replace(/[$^]/g, '\\$&');
 };
 
 export interface Options {
