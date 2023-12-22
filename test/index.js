@@ -56,6 +56,12 @@ try {
 		join(__dirname, 'bar', 'foo.js'),
 	);
 
+	// resolves $/* paths
+	strictEqual(
+		plugin.resolveId('$/foo/bar', ''),
+		join(__dirname, 'foo', 'bar.js'),
+	);
+
 	// resolves from a directory with index file
 	strictEqual(plugin.resolveId('@js', ''), join(__dirname, 'js', 'index.js'));
 
