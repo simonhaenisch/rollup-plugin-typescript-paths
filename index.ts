@@ -1,21 +1,15 @@
-import { join } from 'path';
+import path from 'path';
 import { Plugin } from 'rollup';
-import {
-	CompilerOptions,
-	findConfigFile,
-	nodeModuleNameResolver,
-	parseConfigFileTextToJson,
-	sys,
-} from 'typescript';
+import * as ts from 'typescript';
 
 export const typescriptPaths = ({
 	absolute = true,
 	nonRelative = false,
 	preserveExtensions = false,
-	tsConfigPath = findConfigFile('./', sys.fileExists),
+	tsConfigPath = ts.findConfigFile('./', ts.sys.fileExists),
 	transform,
 }: Options = {}): Plugin => {
-	const { compilerOptions, outDir } = getTsConfig(tsConfigPath);
+	const compilerOptions = getTsConfig(tsConfigPath);
 
 	return {
 		name: 'resolve-typescript-paths',
@@ -48,11 +42,11 @@ export const typescriptPaths = ({
 				return null; // never resolve relative modules, only non-relative
 			}
 
-			const { resolvedModule } = nodeModuleNameResolver(
+			const { resolvedModule } = ts.nodeModuleNameResolver(
 				importee,
 				importer,
 				compilerOptions,
-				sys,
+				ts.sys,
 			);
 
 			if (!resolvedModule) {
@@ -65,15 +59,16 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const targetFileName = join(
-				outDir,
+			// TODO: Do we need outDir as "resolvedFileName" is already correct absolute path
+			const targetFileName = path.join(
+				compilerOptions.outDir,
 				preserveExtensions
 					? resolvedFileName
 					: resolvedFileName.replace(/\.tsx?$/i, '.js'),
 			);
 
 			const resolved = absolute
-				? sys.resolvePath(targetFileName)
+				? ts.sys.resolvePath(targetFileName)
 				: targetFileName;
 
 			return transform ? transform(resolved) : resolved;
@@ -82,21 +77,45 @@ export const typescriptPaths = ({
 };
 
 const getTsConfig = (configPath?: string): TsConfig => {
-	const defaults: TsConfig = { compilerOptions: {}, outDir: '.' };
-
-	if (!configPath) {
+	const defaults: TsConfig = { outDir: '.' };
+	if (typeof configPath !== 'string') {
 		return defaults;
 	}
 
-	const configJson = sys.readFile(configPath);
+	// Define a host object that implements ParseConfigFileHost.
+	// The host provides file system operations and error handling for parsing the configuration file.
+	const host: ts.ParseConfigFileHost = {
+		fileExists: ts.sys.fileExists,
+		readFile: ts.sys.readFile,
+		readDirectory: ts.sys.readDirectory,
+		useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
+		getCurrentDirectory: ts.sys.getCurrentDirectory,
+		onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
+			console.error(
+				'Unrecoverable error in config file:',
+				diagnostic.messageText,
+			);
+			process.exit(1);
+		},
+	};
 
-	if (!configJson) {
-		return defaults;
+	// Read in tsconfig.json
+	const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
+		configPath,
+		{},
+		host,
+	);
+
+	// Access the parsed tsconfig.json file options
+	let resolvedConfig = {};
+	if (parsedCommandLine != null) {
+		resolvedConfig = parsedCommandLine.options;
+	} else {
+		console.error('Failed to parse TypeScript configuration file:', configPath);
+		process.exit(1);
 	}
 
-	const { config } = parseConfigFileTextToJson(configPath, configJson);
-
-	return { ...defaults, ...config };
+	return { ...defaults, ...resolvedConfig };
 };
 
 /**
@@ -141,10 +160,9 @@ export interface Options {
 	transform?(path: string): string;
 }
 
-interface TsConfig {
-	compilerOptions: CompilerOptions;
+type TsConfig = {
 	outDir: string;
-}
+} & Omit<ts.CompilerOptions, 'outDir'>;
 
 /**
  * For backwards compatibility.
