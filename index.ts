@@ -69,11 +69,12 @@ export const typescriptPaths = ({
 				? resolvedFileName
 				: resolvedFileName.replace(/\.tsx?$/i, '.js');
 
-			/* Do not use:
+			/*
+			 *  Do not use:
 			 *  - path.dirname(tsConfigPath) -> using abs. path to <proj_root>/test/<tsconfig>
-			 *  - __dirname -> using abs. path to compiled plugin files <proj_root>/dist
-			 *  - process.env.PWD -> non cross-platform
-			 * instead of process.cwd() -> using abs. path to <proj_root>/<tsconfig>, that is correct
+			 *  - __dirname                  -> using abs. path to compiled plugin files <proj_root>/dist
+			 *  - process.env.PWD            -> non cross-platform
+			 *  instead of process.cwd()     -> using abs. path to <proj_root>/<tsconfig>, that is correct
 			 */
 			const targetFileName = typeof compilerOptions.baseUrl === 'undefined'
 				? join(outDir, relative(process.cwd(), processedFileName))
