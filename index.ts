@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join, relative } from 'path';
 import { Plugin } from 'rollup';
 import {
 	CompilerOptions,
@@ -65,12 +65,19 @@ export const typescriptPaths = ({
 				return null;
 			}
 
-			const targetFileName = join(
-				outDir,
-				preserveExtensions
-					? resolvedFileName
-					: resolvedFileName.replace(/\.tsx?$/i, '.js'),
-			);
+			const processedFileName = preserveExtensions
+				? resolvedFileName
+				: resolvedFileName.replace(/\.tsx?$/i, '.js');
+
+			/* Do not use:
+			 *  - path.dirname(tsConfigPath) -> using abs. path to <proj_root>/test/<tsconfig>
+			 *  - __dirname -> using abs. path to compiled plugin files <proj_root>/dist
+			 *  - process.env.PWD -> non cross-platform
+			 * instead of process.cwd() -> using abs. path to <proj_root>/<tsconfig>, that is correct
+			 */
+			const targetFileName = typeof compilerOptions.baseUrl === 'undefined'
+				? join(outDir, relative(process.cwd(), processedFileName))
+				: join(outDir, processedFileName);
 
 			const resolved = absolute
 				? sys.resolvePath(targetFileName)

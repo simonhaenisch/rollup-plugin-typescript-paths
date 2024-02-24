@@ -6,27 +6,31 @@ const typescriptPaths = require('../dist').default;
 
 const transform = (path) => path.replace(/\.js$/i, '.cjs.js');
 
+const tsConfigPath = process.env.WO_BASEURL
+	? 'tsconfig-wo-baseurl.json'
+	: 'tsconfig.json'
+
 const plugin = typescriptPaths({
-	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	tsConfigPath: resolve(__dirname, tsConfigPath),
 });
 
 const pluginNonAbs = typescriptPaths({
-	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	tsConfigPath: resolve(__dirname, tsConfigPath),
 	absolute: false,
 });
 
 const pluginNonRelative = typescriptPaths({
-	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	tsConfigPath: resolve(__dirname, tsConfigPath),
 	nonRelative: true,
 });
 
 const pluginTransform = typescriptPaths({
-	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	tsConfigPath: resolve(__dirname, tsConfigPath),
 	transform,
 });
 
 const pluginPreserveExtensions = typescriptPaths({
-	tsConfigPath: resolve(__dirname, 'tsconfig.json'),
+	tsConfigPath: resolve(__dirname, tsConfigPath),
 	preserveExtensions: true,
 });
 
@@ -86,11 +90,19 @@ try {
 	// skips non-relative paths unless enabled
 	strictEqual(plugin.resolveId('foo/bar', ''), null);
 
-	// resolves non-relative from baseUrl even if no path is matched
-	strictEqual(
-		pluginNonRelative.resolveId('foo/bar', ''),
-		join(__dirname, 'foo', 'bar.js'),
-	);
+	// resolves non-relative from baseUrl even if no path is matched, baseUrl is necessary in config
+	if (!process.env.WO_BASEURL) {
+		strictEqual(
+			pluginNonRelative.resolveId('foo/bar', ''),
+			join(__dirname, 'foo', 'bar.js'),
+		);
+	} else {
+		console.log(
+			'SKIP test forced nonRelative paths:\n',
+			'- Irrelevant since baseUrl is not provided in this case\n',
+			'- See WO_BASEURL environment variable in the test code'
+		)
+	}
 
 	// resolves as a relative path with option `absolute: false`
 	strictEqual(
