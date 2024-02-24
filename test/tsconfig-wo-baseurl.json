@@ -2,12 +2,12 @@
 	// comments should work
 	"compilerOptions": {
 		"paths": {
-			"@foobar": ["test/foo/bar"],
-			"@foobar-react": ["test/foo/bar-react"],
-			"@bar/*": ["test/bar/*"],
-			"bar/*": ["test/bar/*"],
-			"@js": ["test/js"],
-			"$/*": ["test/*"]
+			"@foobar": ["./test/foo/bar"],
+			"@foobar-react": ["./test/foo/bar-react"],
+			"@bar/*": ["./test/bar/*"],
+			"bar/*": ["./test/bar/*"],
+			"@js": ["./test/js"],
+			"$/*": ["./test/*"]
 		}
 	}
 }
